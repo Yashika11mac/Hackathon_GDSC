@@ -149,8 +149,8 @@ input_data = [{
 prompt = f"""
     
     Please provide:
-    2. A short summary of average Canadian.
-    3. Practical tips on how I can reduce my carbon footprint.
+    1. A short summary of average Canadian.
+    2. Practical tips on how I can reduce my carbon footprint.
 """
 try:
   
