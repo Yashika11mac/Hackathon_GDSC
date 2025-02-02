@@ -15,18 +15,21 @@ import base64
 SCOPES = ['https://www.googleapis.com/auth/documents']
 genai.configure(api_key="AIzaSyBrNu40flvWuEt18lIIrRtCYwKO2IL9Tso")  # Replace with your actual API key
 vertex_credentials = service_account.Credentials.from_service_account_file("VertexAI_credentials.json")
+vertex_credential_path = "/Users/yashika/Desktop/Hackathon_GDSC/VertexAI_credentials.json"
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = vertex_credential_path
 
 PROJECT_ID = "apt-terrain-449617-a4"
 LOCATION = "us-central1"  
 ENDPOINT_ID = "6548578005336195072"
+ 
 
 def predict_with_vertex_ai(input_data):
     endpoint = aiplatform.Endpoint(endpoint_name=f"projects/{PROJECT_ID}/locations/{LOCATION}/endpoints/{ENDPOINT_ID}")
 
-    instance = {"struct": input_data}  # Wrapping in "struct" may be required
-    response = endpoint.predict(instances=[instance])  # Ensure list format
+    instance = input_data  # Wrapping in "struct" may be required
+    response = endpoint.predict(instances=instance)  # Ensure list format
 
-    return response.predictions[0] if response.predictions else "No response from model."
+    return response.predictions[0]
 
 
 
@@ -123,6 +126,7 @@ energy_efficiency = st.selectbox("Select", ["No", "Sometimes", "Yes"])
 
 
 
+# Ensure all values are explicitly converted to strings
 input_data = [{
     "Body_Type": str(body_type),
     "Sex": str(sex),
@@ -142,72 +146,14 @@ input_data = [{
     "Energy_efficiency": str(energy_efficiency)
 }]
 
-if st.button("Calculate Carbon Emission"):
-    prediction = predict_with_vertex_ai(input_data)
-    st.header("📊 Carbon Emission Results")
-    st.success(f"Your estimated carbon emission: {prediction} tonnes CO2 per month")
-
-    # col3, col4 = st.columns(2)
-
-    # with col3:
-    #     st.subheader("Carbon Emissions by Category")
-    #     st.info(f"🚗 Transportation: {transportation_emissions} tonnes CO2 per year")
-    #     st.info(f"💡 Electricity: {electricity_emissions} tonnes CO2 per year")
-    #     st.info(f"🍽️ Diet: {diet_emissions} tonnes CO2 per year")
-    #     st.info(f"🗑️ Waste: {waste_emissions} tonnes CO2 per year")
-
-    # with col4:
-    #     st.subheader("Total Carbon Footprint")
-    #     st.success(f"🌍 Your total carbon footprint is: {total_emissions} tonnes CO2 per year")
-    #     st.warning("In 2021, CO2 emissions per capita for Canada was 1.9 tons of CO2 per capita.")
-
-    average_canadian_carbon_footprint = 1.46  
-    prompt = f"""
-    My total carbon footprint is {prediction} tonnes CO2 per month.
-    - Transportation: {transport} tonnes
-    - Electricity: {energy_efficiency} 
-    - Diet: {diet} tonnes
-    - Waste: {waste_bag_count} bags
-    - Recycling: {', '.join(recycling)}  # Materials recycled (if applicable)
-    - Vehicle Type: {vehicle_type}
-    - Social Activity: {social_activity} events per month
-    - Monthly Grocery Bill: ${grocery_bill}
-    - Frequency of Air Travel: {air_travel_frequency} flights per month
-    - Vehicle Monthly Distance: {vehicle_distance} km
-    - Waste Bag Size: {waste_bag_size} liters
-    - Waste Bag Weekly Count: {waste_bag_count}
-    - Screen Time (TV/PC): {screen_time} hours per day
-    - New Clothes Monthly: {new_clothes} items
-    - Internet Usage: {internet_usage} hours per day
-    - Energy Efficiency Rating: {energy_efficiency} (out of 10)
+prompt = f"""
     
     Please provide:
-    1. A full report of my carbon footprint based on the provided factors.
-    2. A short summary of my carbon footprint.
+    2. A short summary of average Canadian.
     3. Practical tips on how I can reduce my carbon footprint.
 """
-
-    # Plotting carbon footprint comparison
-    fig, ax = plt.subplots()
-    categories = ["Your Carbon Footprint", "Avg Canadian Footprint"]
-    values = [prediction, average_canadian_carbon_footprint]
-
-    ax.bar(categories, values, color=['green', 'blue'])
-    ax.set_ylabel("Tonnes of CO2 per month")
-    ax.set_title("Carbon Footprint Comparison")
-
-    # Convert plot to image
-    buf = BytesIO()
-    plt.savefig(buf, format="png")
-    buf.seek(0)
-    image = Image.open(buf)
-
-    # Display chart in Streamlit
-    st.image(image, caption="Your Carbon Footprint vs. Average Canadian Footprint")
-
-
-    try:
-        # AI response
+try:
+  
         model = genai.GenerativeModel("gemini-pro")
         response = model.generate_content(prompt)
         st.subheader("🤖 AI-Generated Summary & Suggestions")
@@ -215,7 +161,7 @@ if st.button("Calculate Carbon Emission"):
 
         # Save results to Google Docs
         st.subheader("📄 Save Results to Google Docs")
-        doc_content = f"Carbon Footprint Summary:\n\n{response.text}\n\nEmissions:\nTotal: {prediction} tonnes CO2 per year"
+        doc_content = f"Carbon Footprint Summary:\n\n{response.text}\n"
         
         # Authenticate and create a Google Doc
         service = authenticate_google_docs()
@@ -225,5 +171,24 @@ if st.button("Calculate Carbon Emission"):
         else:
             st.error("⚠️ Failed to save to Google Docs.")
 
-    except Exception as e:
+except Exception as e:
         st.error("⚠️ Error generating AI response. Check API key and connection.")
+
+
+# Function to pass the data to the model and handle the prediction
+if st.button("Calculate Carbon Emission"):
+    try:
+        prediction = predict_with_vertex_ai(input_data)  # Pass as list of strings
+        st.header("📊 Carbon Emission Results")
+        prediction_value = prediction.get("value", 0) 
+        prediction_value = prediction_value/360
+        st.success(f"Your estimated carbon emission: {prediction_value} tonnes CO2 per month")
+        
+        st.subheader("📊 Carbon Footprint Comparison")
+        st.bar_chart({
+            "Your Carbon Footprint": [prediction_value],
+            "Average Canadian Footprint": [14.3]
+        })
+        
+    except Exception as e:
+        st.error(f"Error in prediction: {e}")
