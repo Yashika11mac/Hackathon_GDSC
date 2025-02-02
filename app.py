@@ -123,7 +123,7 @@ energy_efficiency = st.selectbox("Select", ["No", "Sometimes", "Yes"])
 
 
 
-input_data = {
+input_data = [{
     "Body_Type": str(body_type),
     "Sex": str(sex),
     "Diet": str(diet),
@@ -140,7 +140,7 @@ input_data = {
     "How_Many_New_Clothes_Monthly": str(new_clothes),
     "How_LongInternet_Daily_Hour": str(internet_usage),
     "Energy_efficiency": str(energy_efficiency)
-}
+}]
 
 if st.button("Calculate Carbon Emission"):
     prediction = predict_with_vertex_ai(input_data)
