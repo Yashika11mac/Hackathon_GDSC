@@ -13,14 +13,14 @@ import base64
 
 # Define the scopes for Google Docs API
 SCOPES = ['https://www.googleapis.com/auth/documents']
-genai.configure(api_key="AIzaSyBrNu40flvWuEt18lIIrRtCYwKO2IL9Tso")  # Replace with your actual API key
+genai.configure(api_key="your-api-key")  # Replace with your actual API key
 vertex_credentials = service_account.Credentials.from_service_account_file("VertexAI_credentials.json")
-vertex_credential_path = "/Users/yashika/Desktop/Hackathon_GDSC/VertexAI_credentials.json"
+vertex_credential_path = "./Hackathon_GDSC/VertexAI_credentials.json"
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = vertex_credential_path
 
-PROJECT_ID = "apt-terrain-449617-a4"
+PROJECT_ID = "your-vertexAI-projectID"
 LOCATION = "us-central1"  
-ENDPOINT_ID = "6548578005336195072"
+ENDPOINT_ID = "your-vertexAI-endpointID"
  
 
 def predict_with_vertex_ai(input_data):
@@ -55,17 +55,6 @@ def create_google_doc(service, content):
     except HttpError as err:
         print(f"Error creating document: {err}")
         return None
-
-
-
-# EMISSION_FACTORS = {
-#     "Canada": {
-#         "Transportation": 0.12,  # kgCO2/km
-#         "Electricity": 0.15,  # kgCO2/kWh
-#         "Diet": 2.5,  # kgCO2/meal
-#         "Waste": 0.2  # kgCO2/kg
-#     }
-# }
 
 
 # Set wide layout and page name
