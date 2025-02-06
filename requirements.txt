@@ -1,1 +1,7 @@
 streamlit
+google-generativeai
+google-auth-oauthlib
+google-auth
+google-api-python-client
+matplotlib
+google-cloud-aiplatform
