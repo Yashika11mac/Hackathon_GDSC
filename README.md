@@ -26,12 +26,12 @@ This project was developed during a hackathon to estimate a user's carbon footpr
 
 ### Installation
 1. Clone the repository:
-   git clone https://github.com/Hackathon_GDSC.git
+   git clone https://github.com/Hackathon_GDSC.git        
    cd Hackathon_GDSC
-2. Install dependencies:
+3. Install dependencies:
    pip install -r requirements.txt
-3. Set up Google authentications
-4. Run the streamlit app:
+4. Set up Google authentications
+5. Run the streamlit app:
    streamlit run app.py
 
 ## 🤖 Technologies Used
